@@ -13,7 +13,8 @@
       "propertyOrder": 1
     },
     "password": {
-      "type": "password",
+      "type": "string",
+      "format": "password",
       "title": "Password",
       "propertyOrder": 2
     },
