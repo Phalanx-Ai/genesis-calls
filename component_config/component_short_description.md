@@ -1,1 +1,1 @@
-Testing functional sample extractor for purposes of the python component template. 
+Extractor of calls from Genesis
