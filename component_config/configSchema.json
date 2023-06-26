@@ -3,7 +3,7 @@
   "title": "extractor configuration",
   "required": [
     "client_id",
-    "password",
+    "#password",
     "cloud_url"
   ],
   "properties": {
