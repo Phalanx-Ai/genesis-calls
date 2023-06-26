@@ -12,7 +12,7 @@
       "title": "Client ID",
       "propertyOrder": 1
     },
-    "password": {
+    "#password": {
       "type": "string",
       "format": "password",
       "title": "Password",
