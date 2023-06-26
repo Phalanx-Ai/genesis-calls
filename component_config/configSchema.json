@@ -22,6 +22,12 @@
       "type": "string",
       "title": "URL of cloud server",
       "propertyOrder": 3
+    },
+    "last_days_interval": {
+      "type": "string",
+      "title": "Get info from last X days",
+      "propertyOrder": 4,
+      "default": "1"
     }
   }
 }

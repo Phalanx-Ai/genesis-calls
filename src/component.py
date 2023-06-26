@@ -10,6 +10,7 @@ import PureCloudPlatformClientV2 as pc2
 KEY_CLIENT_ID = 'client_id'
 KEY_PASSWORD = '#password'
 KEY_CLOUD_URL = 'cloud_url'
+KEY_DAYS = 'last_days_interval'
 
 REQUIRED_PARAMETERS = [KEY_CLIENT_ID, KEY_PASSWORD, KEY_CLOUD_URL]
 REQUIRED_IMAGE_PARS = []
@@ -30,7 +31,10 @@ class Component(ComponentBase):
         super().__init__()
 
     def run(self):
-        DAYS_COUNT = 1
+        if params.get(KEY_DAYS):
+            DAYS_COUNT = int(params.get(KEY_DAYS))
+        else:
+            DAYS_COUNT = 1
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         self.validate_image_parameters(REQUIRED_IMAGE_PARS)
