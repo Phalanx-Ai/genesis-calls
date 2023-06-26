@@ -31,14 +31,15 @@ class Component(ComponentBase):
         super().__init__()
 
     def run(self):
-        if params.get(KEY_DAYS):
-            DAYS_COUNT = int(params.get(KEY_DAYS))
-        else:
-            DAYS_COUNT = 1
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         self.validate_image_parameters(REQUIRED_IMAGE_PARS)
         params = self.configuration.parameters
+
+        if params.get(KEY_DAYS):
+            DAYS_COUNT = int(params.get(KEY_DAYS))
+        else:
+            DAYS_COUNT = 1
 
         # get data from previous calendar day only
         start_date = datetime.datetime.combine(
