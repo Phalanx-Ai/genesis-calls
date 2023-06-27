@@ -81,7 +81,6 @@ class Component(ComponentBase):
             page_max = math.ceil(responses_paging.total_hits / body.paging.page_size)
 
             for page_number in range(page_max):
-                print (page_number)
                 body.paging.page_number = page_number + 1
                 responses = conversation_api.post_analytics_conversations_details_query(body)
 
