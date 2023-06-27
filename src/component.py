@@ -1,6 +1,7 @@
 import csv
 import logging
 import datetime
+import math
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
@@ -66,86 +67,101 @@ class Component(ComponentBase):
         output = {
             "conversations": []
         }
-        responses = conversation_api.post_analytics_conversations_details_query(filter)
 
-        if responses.conversations is not None:
-            for conversation in responses.conversations:
-                c = {}
+        body = pc2.ConversationQuery()
+        body.interval = filter['interval']
+        body.paging = pc2.PagingSpec()
+        body.paging.page_size = 100
+        body.paging.page_number = 1
 
-                c['wrap_up_code'] = []
-                c['agents'] = []
+        # @note: do this twice because this is the way how to get paging info
+        responses_paging = conversation_api.post_analytics_conversations_details_query(body)
 
-                c['conversation_id'] = conversation.conversation_id
-                c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
-                c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
+        if responses_paging.conversations is not None:
+            page_max = math.ceil(responses_paging.total_hits / body.paging.page_size)
 
-                # Get wrap_up_code and decode it to text value
-                for p in conversation.participants:
-                    for session in p.sessions:
-                        for segment in session.segments:
-                            if segment.wrap_up_code is not None:
-                                code_id = segment.wrap_up_code
+            for page_number in range(page_max):
+                print (page_number)
+                body.paging.page_number = page_number + 1
+                responses = conversation_api.post_analytics_conversations_details_query(body)
 
-                                try:
-                                    x = routing_api.get_routing_wrapupcode(code_id)
-                                    c['wrap_up_code'].append(x.name)
-                                except Exception:
-                                    c['wrap_up_code'].append(code_id)
+                for conversation in responses.conversations:
+                    c = {}
 
-                # Get agents and their emails
-                if p.purpose == "agent" and p.user_id is not None:
-                    c['agents'].append(users_api.get_user(p.user_id).username)
+                    c['wrap_up_code'] = []
+                    c['agents'] = []
 
-                output['conversations'].append(c)
+                    c['conversation_id'] = conversation.conversation_id
+                    c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
+                    c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
 
-            # Create output table - conversations
-            conversation_table = self.create_out_table_definition(
-                'conversations.csv', incremental=True, primary_key=['conversation_id'])
-            with open(conversation_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
-                writer = csv.DictWriter(
-                    out_file,
-                    fieldnames=['conversation_id', 'conversation_start', 'conversation_end']
-                )
-                writer.writeheader()
-                for line in output['conversations']:
-                    writer.writerow(
-                        {key: value for key, value in line.items() if key not in ['agents', 'wrap_up_code']}
-                    )
-            self.write_manifest(conversation_table)
+                    # Get wrap_up_code and decode it to text value
+                    for p in conversation.participants:
+                        for session in p.sessions:
+                            for segment in session.segments:
+                                if segment.wrap_up_code is not None:
+                                    code_id = segment.wrap_up_code
 
-            # Create output table - agents
-            agents_table = self.create_out_table_definition(
-                'agents.csv', incremental=True, primary_key=['conversation_id', 'agent_email'])
-            with open(agents_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
-                writer = csv.DictWriter(
-                    out_file,
-                    fieldnames=['conversation_id', 'agent_email']
-                )
-                writer.writeheader()
-                for line in output['conversations']:
-                    for agent in line['agents']:
-                        writer.writerow({
-                            'conversation_id': line['conversation_id'],
-                            'agent_email': agent
-                        })
-            self.write_manifest(agents_table)
+                                    try:
+                                        x = routing_api.get_routing_wrapupcode(code_id)
+                                        c['wrap_up_code'].append(x.name)
+                                    except Exception:
+                                        c['wrap_up_code'].append(code_id)
 
-            # Create output table - wrap up code
-            wrap_table = self.create_out_table_definition(
-                'wrap_up_code.csv',
-                incremental=True,
-                primary_key=['conversation_id', 'wrap_up_code']
+                    # Get agents and their emails
+                    if p.purpose == "agent" and p.user_id is not None:
+                        c['agents'].append(users_api.get_user(p.user_id).username)
+
+                    output['conversations'].append(c)
+
+        # Create output table - conversations
+        conversation_table = self.create_out_table_definition(
+             'conversations.csv', incremental=True, primary_key=['conversation_id'])
+        with open(conversation_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
+            writer = csv.DictWriter(
+                out_file,
+                fieldnames=['conversation_id', 'conversation_start', 'conversation_end']
             )
-            with open(wrap_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
-                writer = csv.DictWriter(out_file, fieldnames=['conversation_id', 'wrap_up_code'])
-                writer.writeheader()
-                for line in output['conversations']:
-                    for code in line['wrap_up_code']:
-                        writer.writerow({
-                            'conversation_id': line['conversation_id'],
-                            'wrap_up_code': code
-                        })
-            self.write_manifest(wrap_table)
+            writer.writeheader()
+            for line in output['conversations']:
+                writer.writerow(
+                    {key: value for key, value in line.items() if key not in ['agents', 'wrap_up_code']}
+                )
+        self.write_manifest(conversation_table)
+
+        # Create output table - agents
+        agents_table = self.create_out_table_definition(
+            'agents.csv', incremental=True, primary_key=['conversation_id', 'agent_email'])
+        with open(agents_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
+            writer = csv.DictWriter(
+                out_file,
+                fieldnames=['conversation_id', 'agent_email']
+            )
+            writer.writeheader()
+            for line in output['conversations']:
+                for agent in line['agents']:
+                    writer.writerow({
+                        'conversation_id': line['conversation_id'],
+                        'agent_email': agent
+                    })
+        self.write_manifest(agents_table)
+
+        # Create output table - wrap up code
+        wrap_table = self.create_out_table_definition(
+            'wrap_up_code.csv',
+            incremental=True,
+            primary_key=['conversation_id', 'wrap_up_code']
+        )
+        with open(wrap_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
+            writer = csv.DictWriter(out_file, fieldnames=['conversation_id', 'wrap_up_code'])
+            writer.writeheader()
+            for line in output['conversations']:
+                for code in line['wrap_up_code']:
+                    writer.writerow({
+                        'conversation_id': line['conversation_id'],
+                        'wrap_up_code': code
+                    })
+        self.write_manifest(wrap_table)
 
 
 if __name__ == "__main__":
