@@ -112,9 +112,9 @@ class Component(ComponentBase):
                                     except Exception:
                                         c['wrap_up_code'].append(code_id)
 
-                    # Get agents and their emails
-                    if p.purpose == "agent" and p.user_id is not None:
-                        c['agents'].append(users_api.get_user(p.user_id).username)
+                        # Get agents and their emails
+                        if p.purpose == "agent" and p.user_id is not None:
+                            c['agents'].append(users_api.get_user(p.user_id).username)
 
                     output['conversations'].append(c)
 
