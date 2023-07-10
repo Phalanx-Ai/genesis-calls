@@ -91,6 +91,11 @@ class Component(ComponentBase):
                     c['agents'] = []
 
                     c['conversation_id'] = conversation.conversation_id
+                    ## @todo: sometimes it might not be defined
+
+                    logging.info(conversation.conversation_start)
+                    logging.info(conversation.conversation_end)
+                    logging.info(">>")
                     c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
                     c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
 
