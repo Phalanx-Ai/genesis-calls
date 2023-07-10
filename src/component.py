@@ -18,6 +18,7 @@ KEY_DAYS = 'last_days_interval'
 REQUIRED_PARAMETERS = [KEY_CLIENT_ID, KEY_PASSWORD, KEY_CLOUD_URL]
 REQUIRED_IMAGE_PARS = []
 
+
 def process_mem():
     process = psutil.Process(os.getpid())
     mem_info = process.memory_info()
@@ -39,7 +40,7 @@ class Component(ComponentBase):
         super().__init__()
 
     def run(self):
-        print (process_mem() / 1024 / 1024)
+        print(process_mem() / 1024 / 1024)
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         self.validate_image_parameters(REQUIRED_IMAGE_PARS)
@@ -89,7 +90,7 @@ class Component(ComponentBase):
             page_max = math.ceil(responses_paging.total_hits / body.paging.page_size)
 
             for page_number in range(page_max):
-                print (process_mem() / 1024 / 1024)
+                print(process_mem() / 1024 / 1024)
                 body.paging.page_number = page_number + 1
                 responses = conversation_api.post_analytics_conversations_details_query(body)
 
@@ -175,8 +176,7 @@ class Component(ComponentBase):
                         'wrap_up_code': code
                     })
         self.write_manifest(wrap_table)
-        print (process_mem() / 1024 / 1024)
-
+        print(process_mem() / 1024 / 1024)
 
 
 if __name__ == "__main__":
