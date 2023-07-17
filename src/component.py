@@ -106,8 +106,17 @@ class Component(ComponentBase):
                     logging.info(conversation.conversation_start)
                     logging.info(conversation.conversation_end)
                     logging.info(">>")
-                    c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
-                    c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
+                    if not conversation.conversation_start is None:
+                        c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
+                    else:
+                        logging.info("Conversation start is None for ID %s" % (str(conversation.conversation_id)))
+                        c['conversation_start'] = None
+
+                    if not conversation.conversation_end is None:
+                        c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
+                    else:
+                        logging.info("Conversation end is None for ID %s" % (str(conversation.conversation_id)))
+                        c['conversation_end'] = None
 
                     # Get wrap_up_code and decode it to text value
                     for p in conversation.participants:
