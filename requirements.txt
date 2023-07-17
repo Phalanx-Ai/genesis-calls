@@ -6,4 +6,3 @@ keboola.utils
 mock
 freezegun
 PureCloudPlatformClientV2
-psutil
