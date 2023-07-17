@@ -2,7 +2,7 @@ import csv
 import logging
 import datetime
 import math
-import os
+import sys
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
@@ -96,13 +96,13 @@ class Component(ComponentBase):
                     logging.info(conversation.conversation_start)
                     logging.info(conversation.conversation_end)
                     logging.info(">>")
-                    if not conversation.conversation_start is None:
+                    if conversation.conversation_start is not None:
                         c['conversation_start'] = conversation.conversation_start.isoformat(timespec="seconds")
                     else:
                         logging.info("Conversation start is None for ID %s" % (str(conversation.conversation_id)))
                         c['conversation_start'] = None
 
-                    if not conversation.conversation_end is None:
+                    if conversation.conversation_end is not None:
                         c['conversation_end'] = conversation.conversation_end.isoformat(timespec="seconds")
                     else:
                         logging.info("Conversation end is None for ID %s" % (str(conversation.conversation_id)))
