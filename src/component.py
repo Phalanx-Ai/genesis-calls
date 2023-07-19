@@ -129,6 +129,8 @@ class Component(ComponentBase):
                                 self.proxy_users[p.user_id] = name
 
                             c['agents'].append(name)
+                        elif p.purpose == "external":
+                            c['agents'].append("external")
 
                     output['conversations'].append(c)
 
