@@ -29,6 +29,8 @@ class Component(ComponentBase):
         If `debug` parameter is present in the `config.json`, the default logger is set to verbose DEBUG mode.
     """
 
+    proxy_users = {}
+
     def __init__(self):
         super().__init__()
 
@@ -119,7 +121,13 @@ class Component(ComponentBase):
 
                         # Get agents and their emails
                         if p.purpose == "agent" and p.user_id is not None:
-                            c['agents'].append(users_api.get_user(p.user_id).username)
+                            if p.user_id in self.proxy_users:
+                                name = self.proxy_users[p.user_id]
+                            else:
+                                name = users_api.get_user(p.user_id).username
+                                self.proxy_users[p.user_id] = name
+
+                            c['agents'].append(name)
 
                     output['conversations'].append(c)
 
