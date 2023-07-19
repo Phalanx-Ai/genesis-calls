@@ -84,6 +84,7 @@ class Component(ComponentBase):
 
             for page_number in range(page_max):
                 body.paging.page_number = page_number + 1
+                logging.info("Downloading page %d" % (body.paging.page_number))
                 responses = conversation_api.post_analytics_conversations_details_query(body)
 
                 for conversation in responses.conversations:
@@ -132,6 +133,7 @@ class Component(ComponentBase):
                     output['conversations'].append(c)
 
         # Create output table - conversations
+        logging.info("Save conversations table")
         conversation_table = self.create_out_table_definition(
              'conversations.csv', incremental=True, primary_key=['conversation_id'])
         with open(conversation_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
@@ -147,6 +149,7 @@ class Component(ComponentBase):
         self.write_manifest(conversation_table)
 
         # Create output table - agents
+        logging.info("Save agents table")
         agents_table = self.create_out_table_definition(
             'agents.csv', incremental=True, primary_key=['conversation_id', 'agent_email'])
         with open(agents_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
@@ -164,6 +167,7 @@ class Component(ComponentBase):
         self.write_manifest(agents_table)
 
         # Create output table - wrap up code
+        logging.info("Save wrap-up code table")
         wrap_table = self.create_out_table_definition(
             'wrap_up_code.csv',
             incremental=True,
