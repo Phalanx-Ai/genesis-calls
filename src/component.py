@@ -3,6 +3,7 @@ import logging
 import datetime
 import math
 import sys
+import psutil
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
@@ -35,6 +36,8 @@ class Component(ComponentBase):
         super().__init__()
 
     def run(self):
+        logging.info("Memory usage BRK1> %s" % str(psutil.Process().memory_info().rss))
+
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         self.validate_image_parameters(REQUIRED_IMAGE_PARS)
         params = self.configuration.parameters
@@ -58,6 +61,7 @@ class Component(ComponentBase):
         }
 
         # obtain data
+        logging.info("Memory usage BRK2> %s" % str(psutil.Process().memory_info().rss))
         api_client = pc2.api_client.ApiClient(
             host=params.get(KEY_CLOUD_URL)
         ).get_client_credentials_token(params.get(KEY_CLIENT_ID), params.get(KEY_PASSWORD))
@@ -70,6 +74,7 @@ class Component(ComponentBase):
             "conversations": []
         }
 
+        logging.info("Memory usage BRK3> %s" % str(psutil.Process().memory_info().rss))
         body = pc2.ConversationQuery()
         body.interval = filter['interval']
         body.paging = pc2.PagingSpec()
@@ -78,6 +83,7 @@ class Component(ComponentBase):
 
         # @note: do this twice because this is the way how to get paging info
         responses_paging = conversation_api.post_analytics_conversations_details_query(body)
+        logging.info("Memory usage BRK4> %s" % str(psutil.Process().memory_info().rss))
 
         if responses_paging.conversations is not None:
             page_max = math.ceil(responses_paging.total_hits / body.paging.page_size)
