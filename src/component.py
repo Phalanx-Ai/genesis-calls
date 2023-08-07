@@ -9,13 +9,11 @@ import resource
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
 
-print (resource.getrlimit(resource.RLIMIT_AS))
+print(resource.getrlimit(resource.RLIMIT_AS))
 mem = 256 * 1024 * 1024
 resource.setrlimit(resource.RLIMIT_AS, (mem, mem))
-print (resource.getrlimit(resource.RLIMIT_AS))
+print(resource.getrlimit(resource.RLIMIT_AS))
 logging.info("Memory usage BRK0> %s" % str(psutil.Process().memory_info().rss))
-
-import PureCloudPlatformClientV2 as pc2
 
 KEY_CLIENT_ID = 'client_id'
 KEY_PASSWORD = '#password'
@@ -43,6 +41,8 @@ class Component(ComponentBase):
         super().__init__()
 
     def run(self):
+        import PureCloudPlatformClientV2 as pc2
+
         logging.info("Memory usage BRK1> %s" % str(psutil.Process().memory_info().rss))
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
