@@ -4,9 +4,16 @@ import datetime
 import math
 import sys
 import psutil
+import resource
 
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
+
+print (resource.getrlimit(resource.RLIMIT_AS))
+mem = 256 * 1024 * 1024
+resource.setrlimit(resource.RLIMIT_AS, (mem, mem))
+print (resource.getrlimit(resource.RLIMIT_AS))
+logging.info("Memory usage BRK0> %s" % str(psutil.Process().memory_info().rss))
 
 import PureCloudPlatformClientV2 as pc2
 
@@ -143,7 +150,8 @@ class Component(ComponentBase):
 
         # Create output table - conversations
         logging.info("Save conversations table")
-        logging.info("Memory usage BRK-SAVE> %s" % str(psutil.Process().memory_info().rss))        conversation_table = self.create_out_table_definition(
+        logging.info("Memory usage BRK-SAVE> %s" % str(psutil.Process().memory_info().rss))
+        conversation_table = self.create_out_table_definition(
              'conversations.csv', incremental=True, primary_key=['conversation_id'])
         with open(conversation_table.full_path, mode='wt', encoding='utf-8', newline='') as out_file:
             writer = csv.DictWriter(
